@@ -12,4 +12,12 @@ export class CustomerRepository {
     async findById(storeId: string, id: string): Promise<ICustomer | null> {
         return await Customer.findOne({ _id: id, store: storeId });
     }
+    async delete(storeId: string, id: string): Promise<void> {
+        await Customer.deleteOne({ _id: id, store: storeId });
+    }
+
+    async update(storeId: string, id: string, data: Partial<ICustomer>): Promise<ICustomer | null> {
+        return await Customer.findOneAndUpdate({ _id: id, store: storeId }, data, { new: true });
+    }
+
 }

@@ -39,4 +39,27 @@ export class CustomerController {
             next(error);
         }
     }
+
+    async updateCustomer(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { storeId, id } = req.params;
+            const updated = await customerRepository.update(storeId, id, req.body);
+            if (!updated) {
+                return res.status(404).json({ success: false, message: 'Customer not found' });
+            }
+            res.status(200).json({ success: true, data: updated });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteCustomer(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { storeId, id } = req.params;
+            await customerRepository.delete(storeId, id);
+            res.status(200).json({ success: true, message: 'Customer deleted' });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
