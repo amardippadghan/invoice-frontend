@@ -11,7 +11,12 @@ router.use(tenantMiddleware);
 
 router.post('/:storeId/products', productController.createProduct);
 router.get('/:storeId/products', productController.getProducts);
+router.get('/:storeId/products/:id', productController.getProductById);
+router.put('/:storeId/products/:id', productController.updateProduct);
+router.delete('/:storeId/products/:id', productController.deleteProduct);
+
 router.post('/:storeId/products/:id/skus', productController.createSKU);
-router.get('/:storeId/products/:id/skus', productController.getSKUs); // Changed to match controller method which gets SKUs for a product
+router.get('/:storeId/products/:id/skus', productController.getSKUs);
+router.put('/:storeId/products/:id/skus/:skuId', productController.updateSKU);
 
 export default router;

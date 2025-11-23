@@ -6,11 +6,18 @@ export class InvoiceRepository {
     }
 
     async findByStore(storeId: string): Promise<IInvoice[]> {
-        return await Invoice.find({ store: storeId });
+        return await Invoice.find({ store: storeId }).populate('customer');
     }
 
     async findById(storeId: string, id: string): Promise<IInvoice | null> {
-        return await Invoice.findOne({ _id: id, store: storeId });
+        return await Invoice.findOne({ _id: id, store: storeId })
+            .populate('customer')
+            .populate({
+                path: 'lineItems.sku',
+                populate: {
+                    path: 'product'
+                }
+            });
     }
 
     async findByInvoiceNumber(storeId: string, invoiceNumber: string): Promise<IInvoice | null> {
@@ -21,11 +28,11 @@ export class InvoiceRepository {
         return await Invoice.find({ store: storeId, customer: customerId }).sort({ createdAt: -1 });
     }
 
-    async updatePayment(storeId: string, invoiceId: string, paymentData: { paidAmount: number; dueAmount: number; paymentStatus: string }): Promise<IInvoice | null> {
+    async updatePayment(storeId: string, invoiceId: string, paymentData: any): Promise<IInvoice | null> {
         return await Invoice.findOneAndUpdate(
             { _id: invoiceId, store: storeId },
             { $set: paymentData },
             { new: true }
-        );
+        ).populate('customer');
     }
 }

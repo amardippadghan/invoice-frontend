@@ -15,9 +15,12 @@ connectDB();
 
 // Middlewares
 app.use(cors());
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(express.json());
 app.use(requestLogger);
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api', routes);

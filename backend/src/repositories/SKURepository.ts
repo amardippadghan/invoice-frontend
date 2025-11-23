@@ -24,4 +24,16 @@ export class SKURepository {
             { new: true }
         );
     }
+
+    async update(storeId: string, id: string, data: Partial<ISKU>): Promise<ISKU | null> {
+        return await SKU.findOneAndUpdate(
+            { _id: id, store: storeId },
+            data,
+            { new: true }
+        );
+    }
+
+    async deleteByProduct(storeId: string, productId: string): Promise<any> {
+        return await SKU.deleteMany({ store: storeId, product: productId });
+    }
 }

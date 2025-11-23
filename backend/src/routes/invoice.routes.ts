@@ -13,5 +13,6 @@ router.post('/:storeId/invoices', invoiceController.createInvoice);
 router.get('/:storeId/invoices', invoiceController.getInvoices);
 router.get('/:storeId/invoices/:id', invoiceController.getInvoice);
 router.get('/:storeId/invoices/:id/print', invoiceController.printInvoice);
+router.post('/:storeId/invoices/:id/payment', invoiceController.addPayment);
 
 export default router;

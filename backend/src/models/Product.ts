@@ -7,6 +7,7 @@ export interface IProduct extends Document {
     type: 'physical' | 'digital' | 'service';
     taxRate?: number;
     status: 'active' | 'inactive';
+    images: string[];
     createdAt: Date;
 }
 
@@ -16,7 +17,8 @@ const ProductSchema = new Schema<IProduct>({
     description: { type: String },
     type: { type: String, enum: ['physical', 'digital', 'service'], default: 'physical' },
     taxRate: { type: Number, default: 0 },
-    status: { type: String, default: 'active' }
+    status: { type: String, default: 'active' },
+    images: { type: [String], default: [] }
 }, { timestamps: true });
 
 export default model<IProduct>('Product', ProductSchema);

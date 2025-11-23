@@ -17,5 +17,8 @@ router.get('/:storeId/customers/:id', customerController.getCustomerById);
 router.put('/:storeId/customers/:id', customerController.updateCustomer);
 router.delete('/:storeId/customers/:id', customerController.deleteCustomer);
 
+// Customer invoices route
+router.get('/:storeId/customers/:id/invoices', customerController.getCustomerInvoices);
+
 export default router;
 

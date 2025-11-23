@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomerRepository } from '../repositories/CustomerRepository';
+import Invoice from '../models/Invoice';
 
 const customerRepository = new CustomerRepository();
 
@@ -58,6 +59,17 @@ export class CustomerController {
             const { storeId, id } = req.params;
             await customerRepository.delete(storeId, id);
             res.status(200).json({ success: true, message: 'Customer deleted' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Get all invoices for a customer
+    async getCustomerInvoices(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { storeId, id } = req.params;
+            const invoices = await Invoice.find({ store: storeId, customer: id }).sort({ createdAt: -1 });
+            res.status(200).json({ success: true, data: invoices });
         } catch (error) {
             next(error);
         }

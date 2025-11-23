@@ -90,4 +90,23 @@ export class InvoiceController {
             next(error);
         }
     }
+
+    async addPayment(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const storeId = req.headers['x-store-id'] as string;
+            const invoiceId = req.params.id;
+            const { amount, method, note } = req.body;
+
+            const result = await invoiceService.addPayment(storeId, invoiceId, {
+                amount,
+                method,
+                note,
+                date: new Date()
+            });
+
+            res.status(200).json({ success: true, data: result });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

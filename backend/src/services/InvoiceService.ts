@@ -2,6 +2,7 @@ import { InvoiceRepository } from '../repositories/InvoiceRepository';
 import { SKURepository } from '../repositories/SKURepository';
 import { ProductRepository } from '../repositories/ProductRepository';
 import { ISKU } from '../models/SKU';
+import { IPayment } from '../models/Invoice';
 
 const invoiceRepository = new InvoiceRepository();
 const skuRepository = new SKURepository();
@@ -62,6 +63,11 @@ export class InvoiceService {
         const adjustments = data.adjustments || 0;
         const total = subTotal + totalTax + shippingAmount + adjustments - totalDiscount;
 
+        // Handle initial payment
+        const paidAmount = Number(data.paidAmount) || 0;
+        const dueAmount = Math.max(0, total - paidAmount);
+        const paymentStatus = data.paymentStatus || (dueAmount <= 0 ? 'paid' : (paidAmount > 0 ? 'partial' : 'unpaid'));
+
         // Generate Invoice Number (Simple auto-increment or random for now)
         // In real app, use a counter collection per store
         const invoiceNumber = `INV-${Date.now()}`;
@@ -79,10 +85,11 @@ export class InvoiceService {
             shippingAmount,
             adjustments,
             total,
-            paidAmount: 0,
-            dueAmount: total,
-            paymentStatus: 'unpaid',
+            paidAmount,
+            dueAmount,
+            paymentStatus,
             issuedAt: new Date(),
+            dueAt: data.dueAt ? new Date(data.dueAt) : undefined,
         });
     }
 
@@ -113,6 +120,33 @@ export class InvoiceService {
         }
 
         return await invoiceRepository.updatePayment(storeId, invoiceId, {
+            paidAmount: newPaidAmount,
+            dueAmount: Math.max(0, dueAmount),
+            paymentStatus,
+        });
+    }
+
+    async addPayment(storeId: string, invoiceId: string, payment: IPayment) {
+        const invoice = await invoiceRepository.findById(storeId, invoiceId);
+        if (!invoice) throw new Error('Invoice not found');
+
+        // Add payment to history
+        const payments = [...(invoice.payments || []), payment];
+
+        // Calculate new totals
+        const newPaidAmount = payments.reduce((sum, p) => sum + p.amount, 0);
+        const dueAmount = invoice.total - newPaidAmount;
+
+        // Determine payment status
+        let paymentStatus: 'paid' | 'partial' | 'unpaid' = 'unpaid';
+        if (dueAmount <= 0) {
+            paymentStatus = 'paid';
+        } else if (newPaidAmount > 0) {
+            paymentStatus = 'partial';
+        }
+
+        return await invoiceRepository.updatePayment(storeId, invoiceId, {
+            payments,
             paidAmount: newPaidAmount,
             dueAmount: Math.max(0, dueAmount),
             paymentStatus,

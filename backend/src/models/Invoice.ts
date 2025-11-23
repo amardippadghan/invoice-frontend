@@ -14,6 +14,14 @@ export interface ILineItem {
     meta?: any;
 }
 
+export interface IPayment {
+    amount: number;
+    date: Date;
+    method?: string;
+    note?: string;
+    createdBy?: Schema.Types.ObjectId;
+}
+
 export interface IInvoice extends Document {
     store: Schema.Types.ObjectId;
     invoiceNumber: string;
@@ -32,7 +40,7 @@ export interface IInvoice extends Document {
     paidAmount: number;
     dueAmount: number;
     paymentStatus: 'paid' | 'partial' | 'unpaid';
-    payments?: any[];
+    payments: IPayment[];
     issuedAt?: Date;
     dueAt?: Date;
     createdBy?: Schema.Types.ObjectId;
@@ -40,6 +48,14 @@ export interface IInvoice extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
+
+const PaymentSchema = new Schema({
+    amount: { type: Number, required: true },
+    date: { type: Date, default: Date.now },
+    method: { type: String, default: 'cash' },
+    note: { type: String },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User' }
+}, { _id: false });
 
 const InvoiceSchema = new Schema<IInvoice>({
     store: { type: Schema.Types.ObjectId, ref: 'Store', required: true, index: true },
@@ -59,7 +75,7 @@ const InvoiceSchema = new Schema<IInvoice>({
     paidAmount: { type: Number, default: 0 },
     dueAmount: { type: Number, default: 0 },
     paymentStatus: { type: String, enum: ['paid', 'partial', 'unpaid'], default: 'unpaid' },
-    payments: { type: Array, default: [] },
+    payments: { type: [PaymentSchema], default: [] },
     issuedAt: { type: Date },
     dueAt: { type: Date },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
